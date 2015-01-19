@@ -248,8 +248,10 @@ class MongoCriteria implements CriteriaInterface {
 	 * @return MongoCriteria
 	 */
 	public function where($condition, $value = null, $type = null) {
-		if (strpos($condition, '||')) {
-			$conditions = explode('||', $condition);
+		$multipleConditionDelimiter = strpos($condition, '||') ? '||' : (strpos($condition, '&&') ? '&&' : null);
+
+		if ($multipleConditionDelimiter) {
+			$conditions = explode($multipleConditionDelimiter, $condition);
 			$conditions = array_map('trim', $conditions);
 			
 			$conditionParts = [];
@@ -262,8 +264,12 @@ class MongoCriteria implements CriteriaInterface {
 
 				$conditionParts[] = $this->_buildCondition($property, $condition, $value);
 			}
-			
-			$this->_addCondition([self::MONGO_OR => $conditionParts]);
+
+			if ($multipleConditionDelimiter === '||') {
+				$this->_addCondition(array(self::MONGO_OR => $conditionParts));
+			} else {
+				$this->_addCondition(array(self::MONGO_AND => $conditionParts));
+			}
 		} else {
 			list($property, $condition, $valueCond) = $this->_parseCondition($condition);
 			
