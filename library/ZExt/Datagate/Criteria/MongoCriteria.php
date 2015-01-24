@@ -244,7 +244,7 @@ class MongoCriteria implements CriteriaInterface {
 	 * 
 	 * @param  string $condition
 	 * @param  mixed  $value
-	 * @param  string $type
+	 * @param  string | null $type
 	 * @return MongoCriteria
 	 */
 	public function where($condition, $value = null, $type = null) {
